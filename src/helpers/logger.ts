@@ -1,3 +1,4 @@
+import constants from './constants';
 /**
  * Simple logger class overriding console.log
  * - it supports a global level to toggle various logging level on/off
@@ -46,7 +47,7 @@ class logger  {
         ]
 
         this.setPrefix(prefix);
-        this.setLevel(6);
+        this.setLevel(constants.logLevel);
 
     }
 
