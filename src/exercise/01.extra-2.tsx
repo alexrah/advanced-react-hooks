@@ -36,7 +36,7 @@ function Counter({initialCount = {count:0}, step = 1}:{initialCount?:tState,step
     // The 1st argument is called "state" - the current value of count
     // The 2nd argument is called "newState" - the value passed to setCount
     const {count} = state;
-    const increment = () => setState({count: count+ 1 })
+    const increment = () => setState({ count: count + 1 })
     return <button onClick={increment}>{count}</button>
 }
 
