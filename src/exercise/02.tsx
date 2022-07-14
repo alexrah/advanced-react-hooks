@@ -10,8 +10,21 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
+type tState = {
+  status: 'pending'|'idle'|'resolved'|'rejected',
+  pokemon: null|undefined,
+  error: null|string|undefined
+}
+
+type tAction = {
+  type: 'pending'|'resolved'|'rejected',
+  pokemon?: null|undefined
+  error?: null|string|undefined,
+
+}
+
 // 🐨 this is going to be our generic asyncReducer
-function pokemonInfoReducer(state, action) {
+function pokemonInfoReducer(state:tState, action:tAction):tState {
   switch (action.type) {
     case 'pending': {
       // 🐨 replace "pokemon" with "data"
@@ -31,7 +44,7 @@ function pokemonInfoReducer(state, action) {
   }
 }
 
-function PokemonInfo({pokemonName}) {
+function PokemonInfo({pokemonName}:{pokemonName:string}) {
   // 🐨 move all the code between the lines into a new useAsync function.
   // 💰 look below to see how the useAsync hook is supposed to be called
   // 💰 If you want some help, here's the function signature (or delete this
@@ -40,7 +53,7 @@ function PokemonInfo({pokemonName}) {
 
   // -------------------------- start --------------------------
 
-  const [state, dispatch] = React.useReducer(pokemonInfoReducer, {
+  const [state, dispatch] = React.useReducer<React.Reducer<tState,tAction>>(pokemonInfoReducer, {
     status: pokemonName ? 'pending' : 'idle',
     // 🐨 this will need to be "data" instead of "pokemon"
     pokemon: null,
@@ -99,7 +112,7 @@ function PokemonInfo({pokemonName}) {
 function App() {
   const [pokemonName, setPokemonName] = React.useState('')
 
-  function handleSubmit(newPokemonName) {
+  function handleSubmit(newPokemonName:string) {
     setPokemonName(newPokemonName)
   }
 
