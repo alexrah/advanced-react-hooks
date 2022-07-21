@@ -10,20 +10,50 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
-function useAsync(cb:()=>any,deps:any[]){
-
 type tState = {
   status: 'pending'|'idle'|'resolved'|'rejected',
-  data: null|undefined,
+  data: null|tPokemon,
   error: null|string|undefined
 }
 
-type tAction = {
-  type: 'pending'|'resolved'|'rejected',
-  data?: null|undefined
-  error?: null|string|undefined,
 
+type tPokemonAttackSpecial = {
+  name: string,
+  type: string,
+  damage: number
 }
+
+type tPokemon = {
+  attacks: {
+    special: tPokemonAttackSpecial[]
+  },
+  fetchedAt: string,
+  id: string,
+  image: string,
+  name: string,
+  number: string
+}
+
+/**
+ * @param {Function} cb async function returns a Promise and it's called inside useEffect hook
+ * @param {Array} deps array of params passed to the cb() function
+ * */
+function useAsync<Data>(
+    asyncCallback: () => Promise<Data> | undefined,
+    deps: any[],
+    initialState: {
+      status: 'pending' | 'idle' | 'resolved' | 'rejected',
+      data: null | Data,
+      error: null | string | undefined
+    }) {
+
+  type tAction = {
+    type: 'pending'|'resolved'|'rejected',
+    data?: null|Data
+    error?: null|string,
+  }
+
+  type tState = typeof initialState
 
 // 🐨 this is going to be our generic asyncReducer
   const asyncReducer = (state:tState, action:tAction):tState => {
@@ -34,7 +64,7 @@ type tAction = {
       }
       case 'resolved': {
         // 🐨 replace "pokemon" with "data" (in the action too!)
-        return {status: 'resolved', data: action.data, error: null}
+        return {status: 'resolved', data: (action.data as Data), error: null}
       }
       case 'rejected': {
         // 🐨 replace "pokemon" with "data"
@@ -46,27 +76,19 @@ type tAction = {
     }
   }
 
-  const [state, dispatch] = React.useReducer<React.Reducer<tState,tAction>>(asyncReducer, {
-    status: pokemonName ? 'pending' : 'idle',
-    // 🐨 this will need to be "data" instead of "pokemon"
-    pokemon: null,
-    error: null,
-  })
+  const [state, dispatch] = React.useReducer<React.Reducer<tState,tAction>>(asyncReducer, initialState)
 
   React.useEffect(() => {
     // 💰 this first early-exit bit is a little tricky, so let me give you a hint:
-    // const promise = asyncCallback()
-    // if (!promise) {
-    //   return
-    // }
-    // then you can dispatch and handle the promise etc...
-    if (!pokemonName) {
+    const promise = asyncCallback()
+    if (!promise) {
       return
     }
-    dispatch({type: 'pending'})
-    fetchPokemon(pokemonName).then(
-        pokemon => {
-          dispatch({type: 'resolved', pokemon})
+    // then you can dispatch and handle the promise etc...
+    dispatch({type:"pending"})
+    promise.then(
+        data => {
+          dispatch({type: 'resolved', data})
         },
         error => {
           dispatch({type: 'rejected', error})
@@ -75,7 +97,7 @@ type tAction = {
     // 🐨 you'll accept dependencies as an array and pass that here.
     // 🐨 because of limitations with ESLint, you'll need to ignore
     // the react-hooks/exhaustive-deps rule. We'll fix this in an extra credit.
-  }, [pokemonName])
+  }, deps)
 
   return state;
 
@@ -97,7 +119,21 @@ function PokemonInfo({pokemonName}:{pokemonName:string}) {
   //   return fetchPokemon(pokemonName)
   // }, [pokemonName])
   // 🐨 this will change from "pokemon" to "data"
-  const {pokemon, status, error} = state
+
+  const state = useAsync<tPokemon>(() => {
+        if (!pokemonName) {
+          return
+        }
+        return fetchPokemon(pokemonName)
+      },
+      [pokemonName],
+      {
+        status: pokemonName ? 'pending' : 'idle',
+        data: null,
+        error: null
+      })
+
+  const {data, status, error} = state
 
   switch (status) {
     case 'idle':
@@ -107,7 +143,7 @@ function PokemonInfo({pokemonName}:{pokemonName:string}) {
     case 'rejected':
       throw error
     case 'resolved':
-      return <PokemonDataView pokemon={pokemon} />
+      return <PokemonDataView pokemon={data} />
     default:
       throw new Error('This should be impossible')
   }
