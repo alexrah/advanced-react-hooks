@@ -12,15 +12,32 @@ import {
 
 type tState = {
   status: 'pending'|'idle'|'resolved'|'rejected',
-  pokemon: null|undefined,
+  pokemon: null|tPokemon,
   error: null|string|undefined
 }
 
 type tAction = {
   type: 'pending'|'resolved'|'rejected',
-  pokemon?: null|undefined
+  pokemon?: null|undefined|tPokemon
   error?: null|string|undefined,
 
+}
+
+type tPokemonAttackSpecial = {
+  name: string,
+  type: string,
+  damage: number
+}
+
+type tPokemon = {
+  attacks: {
+    special: tPokemonAttackSpecial[]
+  },
+  fetchedAt: string,
+  id: string,
+  image: string,
+  name: string,
+  number: string
 }
 
 // 🐨 this is going to be our generic asyncReducer
@@ -32,7 +49,7 @@ function pokemonInfoReducer(state:tState, action:tAction):tState {
     }
     case 'resolved': {
       // 🐨 replace "pokemon" with "data" (in the action too!)
-      return {status: 'resolved', pokemon: action.pokemon, error: null}
+      return {status: 'resolved', pokemon: (action.pokemon as tPokemon), error: null}
     }
     case 'rejected': {
       // 🐨 replace "pokemon" with "data"
@@ -72,11 +89,11 @@ function PokemonInfo({pokemonName}:{pokemonName:string}) {
     }
     dispatch({type: 'pending'})
     fetchPokemon(pokemonName).then(
-      pokemon => {
-        dispatch({type: 'resolved', pokemon})
+        pokemon => {
+          dispatch({type: 'resolved', pokemon })
       },
       error => {
-        dispatch({type: 'rejected', error})
+          dispatch({type: 'rejected', error})
       },
     )
     // 🐨 you'll accept dependencies as an array and pass that here.
