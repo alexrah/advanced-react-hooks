@@ -2,8 +2,8 @@ import * as React from 'react'
 import {alfredTip} from '@kentcdodds/react-workshop-app/test-utils'
 import {render, screen, act} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import App from '../final/02.extra-3'
-// import App from '../exercise/02'
+// import App from '../final/02.extra-3'
+import App from '../exercise/02.extra-3'
 
 beforeEach(() => {
   jest.spyOn(window, 'fetch')
@@ -64,8 +64,14 @@ test('displays the pokemon', async () => {
   await userEvent.type(input, 'mew')
   await userEvent.click(submit)
 
+  // console.log('before unmount',App().type);
+
   // verify unmounting does not result in an error
   unmount()
+
+  // console.log('after unmount',App().type);
+
+
   // wait for a bit for the mocked request to resolve:
   await act(() => new Promise(r => setTimeout(r, 100)))
   alfredTip(
