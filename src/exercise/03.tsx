@@ -11,29 +11,38 @@ import * as React from 'react'
 //   🐨 return your context provider with the value assigned to that array and forward all the other props
 //   💰 more specifically, we need the children prop forwarded to the context provider
 
+const CountContext = React.createContext<[number,React.Dispatch<React.SetStateAction<number>>]>([0,()=>{}]);
+
 function CountDisplay() {
   // 🐨 get the count from useContext with the CountContext
-  const count = 0
+    const [count] = React.useContext(CountContext);
+  // const count = 0
   return <div>{`The current count is ${count}`}</div>
 }
 
 function Counter() {
   // 🐨 get the setCount from useContext with the CountContext
-  const setCount = () => {}
-  const increment = () => setCount(c => c + 1)
+    const [,setCount] = React.useContext(CountContext);
+  // const setCount = (cb:(count:number)=>number  ) => {}
+    const increment = () => setCount((prevCount) => prevCount + 1)
   return <button onClick={increment}>Increment count</button>
 }
 
 function App() {
+
+    const countUseState = React.useState<number>(0)
+
   return (
-    <div>
-      {/*
+      <div>
+          <CountContext.Provider value={countUseState}>
+              {/*
         🐨 wrap these two components in the CountProvider so they can access
         the CountContext value
       */}
-      <CountDisplay />
-      <Counter />
-    </div>
+              <CountDisplay/>
+              <Counter/>
+          </CountContext.Provider>
+      </div>
   )
 }
 
