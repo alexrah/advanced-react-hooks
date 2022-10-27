@@ -1,12 +1,13 @@
 import * as React from 'react'
 import {alfredTip} from '@kentcdodds/react-workshop-app/test-utils'
-import {render} from '@testing-library/react'
+import {render,screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 // import App from '../final/01'
-import App from '../exercise/01'
+import App from '../exercise/01.retake'
 
 // don't do this in regular tests!
 const Counter = App().type
+// const Counter = false
 
 if (!Counter) {
   alfredTip(
@@ -16,12 +17,20 @@ if (!Counter) {
 }
 
 test('clicking the button increments the count with useReducer', async () => {
-  const {container} = render(<App />)
-  const button = container.querySelector('button')
+  const {container,rerender} = render(<App />)
+  // const button = container.querySelector('button')
+  let button = screen.getByRole('button')
+
   await userEvent.click(button)
   expect(button).toHaveTextContent('1')
-  await userEvent.click(button)
-  expect(button).toHaveTextContent('2')
+  await userEvent.click(button);
+  await userEvent.click(button);
+  expect(button).toHaveTextContent('3')
+  rerender(<App key='new'/>);
+  button = screen.getByRole('button')
+  expect(button).toHaveTextContent('0')
+  await userEvent.click(button);
+  expect(button).toHaveTextContent('1')
 
   alfredTip(() => {
     const commentLessLines = Counter.toString()
