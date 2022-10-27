@@ -3,7 +3,7 @@ import {alfredTip} from '@kentcdodds/react-workshop-app/test-utils'
 import {render,screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 // import App from '../final/01'
-import App from '../exercise/01.retake.extra-1'
+import App from '../exercise/01.retake.extra-3'
 
 // don't do this in regular tests!
 const Counter = App().type
